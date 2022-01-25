@@ -4,6 +4,7 @@
   const select = {
     templateOf: {
       menuProduct: "#template-menu-product",
+      cartProduct: "#template-cart-product", // CODE ADDED
     },
     containerOf: {
       menu: "#product-list",
@@ -24,7 +25,7 @@
     },
     widgets: {
       amount: {
-        input: 'input[name="amount"]',
+        input: "input.amount", // CODE CHANGED
         linkDecrease: 'a[href="#less"]',
         linkIncrease: 'a[href="#more"]',
       },
@@ -82,9 +83,9 @@
       document.querySelector(select.templateOf.menuProduct).innerHTML
     ),
     // CODE ADDED START
-    // cartProduct: Handlebars.compile(
-    //   document.querySelector(select.templateOf.cartProduct).innerHTML
-    // ),
+    cartProduct: Handlebars.compile(
+      document.querySelector(select.templateOf.cartProduct).innerHTML
+    ),
     // CODE ADDED END
   };
 
