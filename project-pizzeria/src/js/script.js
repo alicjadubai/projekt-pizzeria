@@ -145,29 +145,16 @@
     }
     initAccordion() {
       const thisProduct = this;
-      /* find the clickable trigger (the element that should react to clicking) */
-      const clickableTrigger =
-        thisProduct.element.querySelector(".product__header");
-      // console.log('Trigger', clickableTrigger);
-      /* START: add event listener to clickable trigger on event click */
+      const productList = document.querySelector("#product-list");
       thisProduct.accordionTrigger.addEventListener("click", function (event) {
-        /* prevent default action for event */
         event.preventDefault();
-        /* find active product (product that has active class) */
-        const activeProducts = document.querySelectorAll(
+        const activeProduct = productList.querySelector(
           select.all.menuProductsActive
         );
-        //  console.log('activeProducts', activeProducts);
-        /* if there is active product and it's not thisProduct.element, remove class active from it */
-        for (let activeProduct of activeProducts) {
-          if (activeProduct != null && activeProduct != thisProduct.element) {
-            activeProduct.classList.remove("active");
-            //console.log('active product', activeProduct);
-          }
+        if (activeProduct != null && activeProduct != thisProduct.element) {
+          activeProduct.classList.remove("active");
         }
-        /* toggle active class on thisProduct.element */
         thisProduct.element.classList.toggle("active");
-        // console.log('this product', thisProduct);
       });
     }
     initAmountWidget() {
@@ -214,7 +201,7 @@
       let price = thisProduct.data.price;
       //  console.log('price:', price);
       // for every category (param)...
-      console.log(thisProduct.data.params);
+
       for (let paramId in thisProduct.data.params) {
         console.log("test test");
         // determine param value, e.g. paramId = 'toppings', param = { label: 'Toppings', type: 'checkboxes'
@@ -261,50 +248,39 @@
 
     addToCart() {
       const thisProduct = this;
-
-      app.cart.add(thisProduct.prepareCartProduct);
+      app.cart.add(thisProduct.prepareCartProduct());
     }
     prepareCartProduct() {
       const thisProduct = this;
-      const productSummary = {
-        id: thisProduct.id,
-        name: thisProduct.data.name,
-        amount: thisProduct.amountWidget.value,
-        priceSingle: thisProduct.priceSingle,
-        price: thisProduct.price,
-        params: thisProduct.prepareCartProductParams(),
-      };
-      return prepareCartProduct;
+      const productSummary = {};
+      productSummary.id = thisProduct.id;
+      productSummary.name = thisProduct.data.name;
+      productSummary.amount = thisProduct.amountWidget.value;
+      productSummary.priceSingle = thisProduct.priceSingle;
+      productSummary.price = productSummary.priceSingle * productSummary.amount;
+      productSummary.params = thisProduct.prepareCartProductParams();
+      return productSummary;
     }
     prepareCartProductParams() {
       const thisProduct = this;
       const formData = utils.serializeFormToObject(thisProduct.form);
       const params = {};
-
-      // for very category (param)
       for (let paramId in thisProduct.data.params) {
         const param = thisProduct.data.params[paramId];
-
-        // create category param in params const eg. params = { ingredients: { name: 'Ingredients', options: {}}}
         params[paramId] = {
           label: param.label,
           options: {},
         };
-
-        // for every option in this category
         for (let optionId in param.options) {
           const option = param.options[optionId];
-          console.log("option", option);
           const optionSelected =
             formData[paramId] && formData[paramId].includes(optionId);
 
           if (optionSelected) {
-            // option is selected!
-            params[paramId].options[option] = option.label;
+            params[paramId].options[optionId] = option.label;
           }
         }
       }
-
       return params;
     }
   }
@@ -391,24 +367,23 @@
     initActions() {
       const thisCart = this;
       thisCart.dom.toggleTrigger.addEventListener("click", function (event) {
-        thisCart.dom.wrapper.classList.toggle("active");
+        thisCart.dom.wrapper.classList.toggle(classNames.cart.wrapperActive);
       });
     }
     add(menuProduct) {
       const thisCart = this;
-      console.log("adding product", menuProduct);
 
       /* generate HTML based on template */
       const generatedHTML = templates.cartProduct(menuProduct);
 
       /* create element using utils.createElementFromHTML */
-      thisCart.element = utils.createDOMFromHTML(generatedHTML);
-
-      /* find menu container */
-      const cartContainer = document.querySelector(select.containerOf.cart);
+      const domElement = utils.createDOMFromHTML(generatedHTML);
+      console.log("dom elelemnt", domElement);
+      // /* find menu container */
+      // const cartContainer = document.querySelector(select.containerOf.cart);
 
       /* add element to menu */
-      thisCart.dom.productList.appendChild(thisCart.element);
+      thisCart.dom.productList.appendChild(domElement);
     }
   }
   const app = {
