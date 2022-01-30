@@ -94,6 +94,7 @@
       const thisProduct = this;
       thisProduct.id = id;
       thisProduct.data = data;
+      console.log("data", data);
 
       thisProduct.renderInMenu();
       thisProduct.getElements();
@@ -145,18 +146,21 @@
     initAccordion() {
       const thisProduct = this;
       /* find the clickable trigger (the element that should react to clicking) */
-      // const clickableTrigger = thisProduct.element.querySelector('.product__header');
+      const clickableTrigger =
+        thisProduct.element.querySelector(".product__header");
       // console.log('Trigger', clickableTrigger);
       /* START: add event listener to clickable trigger on event click */
       thisProduct.accordionTrigger.addEventListener("click", function (event) {
         /* prevent default action for event */
         event.preventDefault();
         /* find active product (product that has active class) */
-        const activeProducts = document.querySelectorAll("active");
+        const activeProducts = document.querySelectorAll(
+          select.all.menuProductsActive
+        );
         //  console.log('activeProducts', activeProducts);
         /* if there is active product and it's not thisProduct.element, remove class active from it */
         for (let activeProduct of activeProducts) {
-          if (activeProduct !== thisProduct.element) {
+          if (activeProduct != null && activeProduct != thisProduct.element) {
             activeProduct.classList.remove("active");
             //console.log('active product', activeProduct);
           }
@@ -165,6 +169,18 @@
         thisProduct.element.classList.toggle("active");
         // console.log('this product', thisProduct);
       });
+    }
+    initAmountWidget() {
+      const thisProduct = this;
+      thisProduct.amountWidget = new AmountWidget(thisProduct.amountWidgetElem);
+
+      thisProduct.amountWidgetElem.addEventListener(
+        "updated",
+        function (event) {
+          thisProduct.processOrder();
+          console.log("updated funkcja");
+        }
+      );
     }
     initOrderForm() {
       const thisProduct = this;
@@ -186,17 +202,7 @@
         thisProduct.addToCart();
       });
     }
-    initAmountWidget() {
-      const thisProduct = this;
-      thisProduct.amountWidget = new AmountWidget(thisProduct.amountWidgetElem);
 
-      thisProduct.amountWidgetElem.addEventListener(
-        "updated",
-        function (event) {
-          thisProduct.processOrder();
-        }
-      );
-    }
     processOrder() {
       const thisProduct = this;
 
@@ -208,7 +214,9 @@
       let price = thisProduct.data.price;
       //  console.log('price:', price);
       // for every category (param)...
+      console.log(thisProduct.data.params);
       for (let paramId in thisProduct.data.params) {
+        console.log("test test");
         // determine param value, e.g. paramId = 'toppings', param = { label: 'Toppings', type: 'checkboxes'
         const param = thisProduct.data.params[paramId];
         //  console.log('param id, param:', paramId, param);
@@ -218,6 +226,17 @@
           const option = param.options[optionId];
           //   console.log('option id, option:',optionId, option);
           // check if there is param with a name of paramId in formData and if it includes optionId
+          const optionSelected =
+            formData[paramId] && formData[paramId].includes(optionId);
+          if (optionSelected) {
+            if (!option.default) {
+              price += option.price;
+            }
+          } else {
+            if (option.default) {
+              price -= option.price;
+            }
+          }
           const optionImage = thisProduct.imageWrapper.querySelector(
             `.${paramId}-${optionId}`
           );
@@ -225,33 +244,21 @@
           // console.log('image', optionImage);
           if (optionImage) {
             // Yes! We've found it!
-          }
-          if (formData[paramId] && formData[paramId].includes(optionId)) {
-            //   // check if the option is not default
-            if (!option.default === true) {
-              // console.log('option defult', option.defult);
-              //     // add option price to price variable
-              price = price + option.price;
-              //console.log('price not defult', price);
-            }
-          } else {
-            //   // check if the option is default
-            if (option.default === true) {
-              //     // reduce price variable
-              price = price - option.price;
-              // console.log('price defult', price);
-            }
+            optionImage.classList.remove(classNames.menuProduct.imageVisible);
           }
         }
-
-        //MULTIPLY PRICE BY AMOUNT
-        price *= thisProduct.amountWidget.value;
-        thisProduct.priceSingle = price;
-        console.log("single price", thisProduct.priceSingle);
-        // update calculated price in the HTML
-        thisProduct.priceElem.innerHTML = price;
       }
+
+      thisProduct.priceSingle = price;
+      console.log("single price", thisProduct.priceSingle);
+      //MULTIPLY PRICE BY AMOUNT
+      price *= thisProduct.amountWidget.value;
+      console.log("price", price);
+
+      // update calculated price in the HTML
+      thisProduct.priceElem.innerHTML = price;
     }
+
     addToCart() {
       const thisProduct = this;
 
@@ -308,7 +315,8 @@
       console.log("this widget", thisWidget);
       console.log("constructor", element);
       thisWidget.getElements(element);
-      thisWidget.setValue(thisWidget.input.value);
+
+      thisWidget.setValue(settings.amountWidget.defaultValue);
       thisWidget.initActions();
     }
     getElements(element) {
