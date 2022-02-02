@@ -103,7 +103,7 @@
       thisProduct.initAmountWidget();
       thisProduct.processOrder();
 
-      console.log("new Product:", thisProduct);
+      // console.log("new Product:", thisProduct);
     }
     renderInMenu() {
       const thisProduct = this;
@@ -165,7 +165,7 @@
         "updated",
         function (event) {
           thisProduct.processOrder();
-          console.log("updated funkcja");
+          // console.log("updated funkcja");
         }
       );
     }
@@ -203,7 +203,7 @@
       // for every category (param)...
 
       for (let paramId in thisProduct.data.params) {
-        console.log("test test");
+        // console.log("test test");
         // determine param value, e.g. paramId = 'toppings', param = { label: 'Toppings', type: 'checkboxes'
         const param = thisProduct.data.params[paramId];
         //  console.log('param id, param:', paramId, param);
@@ -237,10 +237,10 @@
       }
 
       thisProduct.priceSingle = price;
-      console.log("single price", thisProduct.priceSingle);
+      // console.log("single price", thisProduct.priceSingle);
       //MULTIPLY PRICE BY AMOUNT
       price *= thisProduct.amountWidget.value;
-      console.log("price", price);
+      //  console.log("price", price);
 
       // update calculated price in the HTML
       thisProduct.priceElem.innerHTML = price;
@@ -288,8 +288,8 @@
   class AmountWidget {
     constructor(element) {
       const thisWidget = this;
-      console.log("this widget", thisWidget);
-      console.log("constructor", element);
+      // console.log("this widget", thisWidget);
+      // console.log("constructor", element);
       thisWidget.getElements(element);
 
       thisWidget.setValue(settings.amountWidget.defaultValue);
@@ -350,7 +350,7 @@
       const thisCart = this;
       thisCart.products = [];
       thisCart.getElements(element);
-      console.log("new Cart", thisCart);
+      // console.log("new Cart", thisCart);
       thisCart.initActions();
     }
     getElements(element) {
@@ -378,17 +378,35 @@
 
       /* create element using utils.createElementFromHTML */
       const domElement = utils.createDOMFromHTML(generatedHTML);
-      console.log("dom elelemnt", domElement);
+      //console.log("dom elelemnt", domElement);
       // /* find menu container */
       // const cartContainer = document.querySelector(select.containerOf.cart);
 
       /* add element to menu */
       thisCart.dom.productList.appendChild(domElement);
       thisCart.products.push(new CartProduct(menuProduct, domElement));
-      console.log("thisCart Products", thisCart.products);
+      //console.log("thisCart Products", thisCart.products);
+    }
+    update() {
+      const thisCart = this;
+      const deliveryFee = thisCart.querySelector(settings.cart.deliveryFee);
+      console.log("delivery free", deliveryFee);
+      let totalNumer = 0;
+      let subTotalPrice = 0;
+
+      for (let thisCartProduct of thisCart.products) {
+        totalNumer += thisCartProduct.amount;
+
+        subTotalPrice += thisCartProduct.price;
+        console.log(totalNumer, subTotalPrice);
+      }
+      if (totalNumer === 0) {
+        thisCartTotalPrice = 0;
+      } else {
+        thisCartTotalPrice = totalNumer * subTotalPrice + thisCart.deliveryFee;
+      }
     }
   }
-
   class CartProduct {
     constructor(menuProduct, element) {
       const thisCartProduct = this;
@@ -399,7 +417,7 @@
       thisCartProduct.price = menuProduct.price;
 
       thisCartProduct.getElements(element);
-      console.log("cart Product", thisCartProduct);
+      // console.log("cart Product", thisCartProduct);
       thisCartProduct.initAmountWidget();
     }
     getElements(element) {
@@ -457,11 +475,11 @@
     init: function () {
       const thisApp = this;
 
-      console.log("*** App starting ***");
-      console.log("thisApp:", thisApp);
-      console.log("classNames:", classNames);
-      console.log("settings:", settings);
-      console.log("templates:", templates);
+      // console.log("*** App starting ***");
+      // console.log("thisApp:", thisApp);
+      // console.log("classNames:", classNames);
+      // console.log("settings:", settings);
+      // console.log("templates:", templates);
 
       thisApp.initData();
       thisApp.initMenu();
