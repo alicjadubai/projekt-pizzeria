@@ -371,7 +371,7 @@
       thisCart.dom.subtotalPrice = thisCart.dom.wrapper.querySelector(
         select.cart.subtotalPrice
       );
-      thisCart.dom.totalPrice = thisCart.dom.wrapper.querySelector(
+      thisCart.dom.totalPrice = thisCart.dom.wrapper.querySelectorAll(
         select.cart.totalPrice
       );
       thisCart.dom.totalNumber = thisCart.dom.wrapper.querySelector(
