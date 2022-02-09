@@ -382,6 +382,13 @@
       thisCart.dom.totalNumber = thisCart.dom.wrapper.querySelector(
         select.cart.totalNumber
       );
+      thisCart.dom.form = thisCart.dom.wrapper.querySelector(select.cart.form);
+      thisCart.dom.phone = thisCart.dom.wrapper.querySelector(
+        select.cart.phone
+      );
+      thisCart.dom.address = thisCart.dom.wrapper.querySelector(
+        select.cart.address
+      );
     }
     initActions() {
       const thisCart = this;
@@ -393,6 +400,10 @@
       });
       thisCart.dom.productList.addEventListener("remove", function () {
         thisCart.remove(event.detail.cartProduct);
+      });
+      thisCart.dom.form.addEventListener("submit", function (event) {
+        event.preventDefault();
+        thisCart.sendOrder();
       });
     }
     add(menuProduct) {
@@ -416,28 +427,28 @@
     update() {
       const thisCart = this;
       let deliveryFee = settings.cart.defaultDeliveryFee;
-      let totalNumber = 0;
-      let subTotalPrice = 0;
+      thisCart.totalNumber = 0;
+      thisCart.subTotalPrice = 0;
       for (let product of thisCart.products) {
-        totalNumber += product.amount;
-        subTotalPrice += product.price;
-        console.log(totalNumber, subTotalPrice);
+        thisCart.totalNumber += product.amount;
+        thisCart.subTotalPrice += product.price;
+        console.log(thisCart.totalNumber, thisCart.subTotalPrice);
       }
-      if (totalNumber) {
-        thisCart.totalPrice = subTotalPrice + deliveryFee;
+      if (thisCart.totalNumber) {
+        thisCart.totalPrice = thisCart.subTotalPrice + deliveryFee;
       } else {
-        thisCart.totalPrice = subTotalPrice;
+        thisCart.totalPrice = thisCart.subTotalPrice;
         deliveryFee = 0;
       }
       thisCart.dom.deliveryFee.innerHTML = deliveryFee;
-      thisCart.dom.subtotalPrice.innerHTML = subTotalPrice;
+      thisCart.dom.subtotalPrice.innerHTML = thisCart.subTotalPrice;
 
       thisCart.dom.totalPrice.innerHTML = thisCart.totalPrice;
       //TotalPrice is not iratable
       for (let totalPrice of thisCart.dom.totalPrice) {
         totalPrice.innerHTML = thisCart.totalPrice;
       }
-      thisCart.dom.totalNumber.innerHTML = totalNumber;
+      thisCart.dom.totalNumber.innerHTML = thisCart.totalNumber;
     }
     remove(productRemove) {
       const thisCart = this;
@@ -445,6 +456,28 @@
       const removedProduct = thisCart.products.splice(indexOfproductRemove, 1);
 
       thisCart.update();
+    }
+    sendOrder() {
+      const thisCart = this;
+      const url = settings.db.url + "/" + settings.db.orders;
+      const payload = {
+        address: thisCart.dom.address.value,
+        phone: thisCart.dom.phone.value,
+        totalPrice: thisCart.totalPrice,
+        subtotalPrice: thisCart.subTotalPrice - thisCart.dom.deliveryFee,
+        totalNumber: thisCart.totalNumber,
+        deliveryFee: thisCart.dom.deliveryFee,
+        products: [],
+      };
+      for (let prod of thisCart.products) {
+        payload.products.push(prod.getData());
+      }
+      const options = {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      };
+      fetch(url, options);
     }
   }
   class CartProduct {
@@ -513,6 +546,17 @@
         event.preventDefault();
         thisCartProduct.remove();
       });
+    }
+    getData() {
+      const thisCartProduct = this;
+      const order = [];
+      order.id = thisCartProduct.id;
+      order.amount = thisCartProduct.amountWidget.value;
+      order.priceSingle = thisCartProduct.priceSingle;
+      // order.name = thisCartProduct.name;
+      order.params = thisCartProduct.params;
+      order.price = thisCartProduct.price;
+      return order;
     }
   }
   const app = {
